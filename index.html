@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Serviços - Ragnarok LATAM</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      background: url('https://i.imgur.com/YK4PyeD.png') no-repeat center center fixed;
+      background-size: cover;
+      font-family: Verdana, sans-serif;
+      color: #222;
+      padding: 20px;
+    }
+    .container {
+      background: rgba(255, 255, 255, 0.95);
+      max-width: 700px;
+      margin: auto;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 12px rgba(0,0,0,0.3);
+    }
+    h1 {
+      text-align: center;
+      font-size: 28px;
+      color: #004080;
+    }
+    input, textarea, select {
+      width: 100%;
+      padding: 8px;
+      margin: 8px 0 16px 0;
+      border: 1px solid #aaa;
+      border-radius: 6px;
+      box-sizing: border-box;
+    }
+    button {
+      background-color: #004080;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0066cc;
+    }
+    .card {
+      background: #eef;
+      border-radius: 6px;
+      padding: 10px;
+      margin-bottom: 15px;
+      border-left: 5px solid #004080;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Catálogo de Serviços - Ragnarok LATAM</h1>
+    <form id="servicoForm">
+      <label>Nome:</label>
+      <input type="text" id="nome" required>
+
+      <label>Tipo de Serviço:</label>
+      <select id="tipo" required>
+        <option value="">-- Selecione --</option>
+        <option value="Venda de Itens">Venda de Itens</option>
+        <option value="Leech">Leech</option>
+        <option value="Venda de KKs">Venda de KKs</option>
+        <option value="Outro">Outro</option>
+      </select>
+
+      <label>WhatsApp ou Nome In-Game:</label>
+      <input type="text" id="contato" required>
+
+      <label>Itens à Venda ou Detalhes:</label>
+      <textarea id="itens" rows="4" required></textarea>
+
+      <button type="submit">Cadastrar Serviço</button>
+    </form>
+
+    <div id="listaServicos">
+      <h2>Serviços Ativos</h2>
+    </div>
+  </div>
+
+  <script>
+    const form = document.getElementById('servicoForm');
+    const lista = document.getElementById('listaServicos');
+
+    const STORAGE_KEY = 'ragnarok_servicos';
+    const TIMESTAMP_KEY = 'ragnarok_timestamp';
+
+    function resetarSe24h() {
+      const agora = new Date().getTime();
+      const salvo = localStorage.getItem(TIMESTAMP_KEY);
+      if (!salvo || agora - parseInt(salvo) > 86400000) {
+        localStorage.removeItem(STORAGE_KEY);
+        localStorage.setItem(TIMESTAMP_KEY, agora.toString());
+      }
+    }
+
+    function salvarServico(servico) {
+      const dados = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+      dados.unshift(servico);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(dados));
+    }
+
+    function carregarServicos() {
+      lista.innerHTML = '<h2>Serviços Ativos</h2>';
+      const dados = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+      dados.forEach(s => {
+        const div = document.createElement('div');
+        div.className = 'card';
+        div.innerHTML = `<strong>${s.nome}</strong> - <em>${s.tipo}</em><br>
+                         Contato: ${s.contato}<br>
+                         <div>${s.itens.replace(/\n/g, '<br>')}</div>`;
+        lista.appendChild(div);
+      });
+    }
+
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+      const servico = {
+        nome: document.getElementById('nome').value,
+        tipo: document.getElementById('tipo').value,
+        contato: document.getElementById('contato').value,
+        itens: document.getElementById('itens').value
+      };
+      salvarServico(servico);
+      carregarServicos();
+      form.reset();
+    });
+
+    resetarSe24h();
+    carregarServicos();
+  </script>
+</body>
+</html>
